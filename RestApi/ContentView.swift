@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct Response: Codable {
-    var results: [Result]
-}
+//struct Response: Codable {
+//    var results: [Result]
+//}
 
 struct Result: Codable {
     var id: Int
@@ -21,7 +21,13 @@ struct Result: Codable {
 }
 
 struct ContentView: View {
-    @State var results = [Result]()
+//    @State var results = [Result]()
+    @State var result = Result(id: 0,
+                               title: "",
+                               code: "",
+                               linenos: false,
+                               language: "",
+                               style: "")
 //    @ObservedObject var query = Query()
     
     var body: some View {
@@ -31,12 +37,19 @@ struct ContentView: View {
                     loadData()
                     print("Searching...")
                 }
-                List(results, id: \.id) { item in
-                    VStack(alignment: .leading) {
-                        Text(item.title)
-                            .font(.headline)
-                    }
-                }
+//                List(results, id: \.id) { item in
+//                    VStack(alignment: .leading) {
+//                        Text(item.title)
+//                            .font(.headline)
+//                    }
+//                }
+            }
+            VStack {
+                Text(String(result.id))
+                Text(result.title)
+                Text(result.code)
+                Text(String(result.linenos))
+                Text(result.style)
             }
         }
     }
@@ -44,18 +57,23 @@ struct ContentView: View {
     func loadData() {
         // http://127.0.0.1:8000/snippets/
         // http://127.0.0.1:8000/snippets/2/
-        guard let url = URL(string: "http://127.0.0.1:8000/snippets/") else {
+        // create the URL we want to read
+        guard let url = URL(string: "http://127.0.0.1:8000/snippets/2") else {
             print("Invalid URL")
             return
         }
         
+        // wrap url in URLRequest to configure how the URL will be accessed
         let request = URLRequest(url: url)
         
+        // create and start a network task from the URLRequest
         URLSession.shared.dataTask(with: request) { data, response, error in
+            // handle the result of the networking task
             if let data = data {
-                if let decodedResponse = try?JSONDecoder().decode(Response.self, from: data) {
+                if let decodedResponse = try?JSONDecoder().decode(Result.self, from: data) {
                     DispatchQueue.main.async {
-                        self.results = decodedResponse.results
+//                        self.results = decodedResponse
+                        self.result = decodedResponse
                     }
                     print("Results returned")
                     return
